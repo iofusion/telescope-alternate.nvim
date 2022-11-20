@@ -4,6 +4,8 @@ Alternate between common files using pre-defined regexp.  Just map the patterns 
 
 Telescope alternate also can create files when it is missing (including files with regexp at destination)
 
+[NOTE: This fork (iofusion/telescope-alternate.nvim) supports switching directly to multiple alternates, and includes an example for Ember's default layout.](#Switch-directly-to-one-of-multiple-alternates)
+
 ![demo](demo.gif)
 
 # Installation
@@ -106,4 +108,177 @@ Example:
   { 'db/helpers/**/*[1]*.rb', 'Helper' } },
   { 'app/controllers/**/*[1:pluralize]_controller.rb', 'Controller' } },
 },
+```
+
+# Switch directly to one of multiple alternates
+
+This fork adds support for switching directly to one of multiple alternates by including a focus option when opening this extension.  The focus option matches with a nested mappings object in the same format as the standard mappings documented above.  The standard mappings have been moved to `mappings.all`, and might be useful for splits/tabs or peeking.  Each of the nested focus mapping groups contain a single alternate match target for a source file.  `focus=template` will match against `mappings.template.`  Here is an example that supports a default Ember 4.28 project with direct access between code, templates, routes, and tests using `<Leader> c`, `h`, `r`, and `t`.
+
+```lua
+-- neovim mappings
+vim.api.nvim_set_keymap( "n", "<Leader>c", ":Telescope telescope-alternate alternate_file focus=code<cr>", { noremap = true })
+vim.api.nvim_set_keymap( "n", "<Leader>h", ":Telescope telescope-alternate alternate_file focus=template<cr>", { noremap = true })
+vim.api.nvim_set_keymap( "n", "<Leader>r", ":Telescope telescope-alternate alternate_file focus=route<cr>", { noremap = true })
+vim.api.nvim_set_keymap( "n", "<Leader>t", ":Telescope telescope-alternate alternate_file focus=test<cr>", { noremap = true })
+vim.api.nvim_set_keymap( "n", "<Leader>a", ":Telescope telescope-alternate alternate_file<cr>", { noremap = true })
+```
+
+```lua
+-- telescope extension setup
+require('telescope').setup{
+  extensions = {
+    ["telescope-alternate"] = {
+      mappings = {
+       code = {
+         { 'app/routes/(.*/?)(.*).([jt]s)$', {
+           { 'app/controllers/[1][2].[3]', 'Controller' },
+         } },
+         { 'app/templates/(.*/?)(.*).hbs', {
+           { 'app/controllers/[1][2].*s', 'Controller', true },
+         } },
+         { 'app/templates/components/(.*/?)(.*).hbs', {
+           { 'app/components/[1][2].*s', 'Component', true },
+         } },
+         { 'tests/helpers/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/helpers/[1][2].[3]', 'Helper' },
+         } },
+         { 'tests/integration/components/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/components/[1][2].[3]', 'Component' },
+         } },
+         { 'tests/unit/controllers/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/controllers/[1][2].[3]', 'Controller' },
+         } },
+         { 'tests/unit/models/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/models/[1][2].[3]', 'Model' },
+         } },
+         { 'tests/unit/routes/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/routes/[1][2].[3]', 'Route' },
+         } },
+         { 'tests/unit/services/(.*/?)(.*)-test.([jt]s)', {
+           { 'app/services/[1][2].[3]', 'Service' },
+         } },
+         { 'tests/unit/utils/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/utils/[1][2].[3]', 'Util' },
+         } },
+       },
+       route = {
+         { 'app/controllers/(.*/?)(.*).([jt]s)$', {
+           { 'app/routes/[1][2].[3]', 'Route' },
+         } },
+         { 'app/templates/(.*/?)(.*).hbs', {
+           { 'app/routes/[1][2].*s', 'Route' },
+         } },
+         { 'tests/unit/routes/(.*/?)(.*).([jt]s)$', {
+           { 'app/routes/[1][2].[3]', 'Route' },
+         } },
+       },
+       template = {
+         { 'app/controllers/(.*/?)(.*).([jt]s)$', {
+           { 'app/templates/[1][2].hbs', 'Template' },
+         } },
+         { 'app/components/(.*/?)(.*).([jt]s)$', {
+           { 'app/templates/components/[1][2].hbs', 'Template' },
+         } },
+         { 'app/routes/(.*/?)(.*).([jt]s)$', {
+           { 'app/templates/[1][2].hbs', 'Template' },
+         } },
+         { 'tests/unit/controllers/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/templates/[1][2].hbs', 'Template' },
+         } },
+         { 'tests/integration/components/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/templates/components/[1][2].hbs', 'Template' },
+         } },
+         { 'tests/unit/routes/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/templates/[1][2].hbs', 'Template' },
+         } },
+       },
+       test = {
+         { 'app/components/(.*/?)(.*).([jt]s)$', {
+           { 'tests/integration/components/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/templates/components/(.*/?)(.*).hbs', {
+           { 'tests/integration/components/[1][2]-test.*s', 'Test', true },
+         } },
+         { 'app/helpers/(.*/?)(.*).([jt]s)$', {
+           { 'tests/helpers/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/controllers/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/controllers/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/models/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/models/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/routes/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/routes/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/services/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/services/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/utils/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/utils/[1][2]-test.[3]', 'Test' },
+         } },
+       },
+       all = {
+         { 'app/components/(.*/?)(.*).([jt]s)$', {
+           { 'app/templates/components/[1][2].hbs', 'Template' },
+           { 'tests/integration/components/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/controllers/(.*/?)(.*).([jt]s)$', {
+           { 'app/routes/[1][2].[3]', 'Route' },
+           { 'app/templates/[1][2].hbs', 'Template' },
+           { 'tests/unit/controllers/[1]-test.[3]', 'Test' },
+         } },
+         { 'app/routes/(.*/?)(.*).([jt]s)$', {
+           { 'app/controllers/[1][2].[3]', 'Controller' },
+           { 'app/templates/[1][2].hbs', 'Template' },
+           { 'tests/unit/routes/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/templates/(.*/?)(.*).hbs', {
+           { 'app/controllers/[1][2].*s', 'Controller' },
+           { 'app/routes/[1][2].*s', 'Route' },
+           { 'tests/unit/controllers/[1][2]-test.[3]', 'Test' },
+           { 'tests/unit/routes/[1][2]-test.*s', 'Test' },
+         } },
+         { 'app/models/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/models/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/helpers/(.*/?)(.*).([jt]s)$', {
+           { 'tests/helpers/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/services/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/services/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'app/utils/(.*/?)(.*).([jt]s)$', {
+           { 'tests/unit/utils/[1][2]-test.[3]', 'Test' },
+         } },
+         { 'tests/integration/components/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/components/[1][2].[3]', 'Component' },
+           { 'app/templates/components/[1][2].hbs', 'Template' },
+         } },
+         { 'tests/unit/controllers/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/controllers/[1][2].[3]', 'Controller' },
+           { 'app/templates/[1][2].hbs', 'Template' },
+         } },
+         { 'tests/unit/routes/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/routes/[1][2].[3]', 'Route' },
+           { 'app/templates/[1][2].hbs', 'Template' },
+         } },
+         { 'tests/unit/models/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/models/[1][2].[3]', 'Model' },
+         } },
+         { 'tests/helpers/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/helpers/[1][2].[3]', 'Helper' },
+         } },
+         { 'tests/unit/services/(.*/?)(.*)-test.([jt]s)', {
+           { 'app/services/[1][2].[3]', 'Service' },
+         } },
+         { 'tests/unit/utils/(.*/?)(.*)-test.([jt]s)$', {
+           { 'app/utils/[1][2].[3]', 'Util' },
+         } },
+       },
+       presets = { }
+      },
+    },
+  },
+}
 ```

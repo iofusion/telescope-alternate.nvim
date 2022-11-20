@@ -10,7 +10,7 @@ local M = {}
 function M.alternate(alt_opts)
   local opts = alt_opts or {}
 
-  local results = alternate.find_alternatve_files() or {}
+  local results = alternate.find_alternatve_files(opts.focus) or {}
 
   if #results == 1 and results[1].type == "switch" then
     alternate.go_to_selection(results[1])
