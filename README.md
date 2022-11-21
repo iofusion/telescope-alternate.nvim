@@ -239,6 +239,10 @@ require('telescope').setup{
            { 'tests/unit/controllers/[1][2]-test.[3]', 'Test' },
            { 'tests/unit/routes/[1][2]-test.*s', 'Test' },
          } },
+         { 'app/templates/components/(.*/?)(.*).hbs', {
+           { 'app/components/[1][2].*s', 'Component', true },
+           { 'tests/integration/components/[1][2]-test.*s', 'Test', true },
+         } },
          { 'app/models/(.*/?)(.*).([jt]s)$', {
            { 'tests/unit/models/[1][2]-test.[3]', 'Test' },
          } },
